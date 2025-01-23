@@ -80,9 +80,9 @@ install_script_alias() {
 check_and_install_dependencies() {
   spinner "Checking dependencies..." "sleep 1"
   local missing_packages=()
-
-  for dep_info in "${DEPENDENCIES[@]}"; do
-    local dep="${dep_info%%:*}" package="${dep_info#*:}"
+  
+  # Special handling for libfuse2 on Ubuntu 24.04+
+  if [[ -f "/etc/os-release" ]] && grep -q{dep_info#*:}"
     [[ "$package" == "$dep" ]] && package=""
     command -v "$dep" >/dev/null 2>&1 || missing_packages+=("${package:-$dep}")
   done
