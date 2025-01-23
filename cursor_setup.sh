@@ -82,7 +82,16 @@ check_and_install_dependencies() {
   local missing_packages=()
   
   # Special handling for libfuse2 on Ubuntu 24.04+
-  if [[ -f "/etc/os-release" ]] && grep -q{dep_info#*:}"
+  if [[ -f "/etc/os-release" ]] && grep -q "Ubuntu" "/etc/os-release"; then
+    local ubuntu_version=$(grep -oP 'VERSION_ID="\K[^"]+' /etc/os-release)
+    if (( $(echo "$ubuntu_version >= 24.04" | bc -l) )); then
+      # Replace libfuse2 with libfuse2t64 for Ubuntu 24.04+
+      DEPENDENCIES=("${DEPENDENCIES[@]/libfuse2/libfuse2t64}")
+    fi
+  fi
+
+  for dep_info in "${DEPENDENCIES[@]}"; do
+    local dep="${dep_info%%:*}" package="${dep_info#*:}"
     [[ "$package" == "$dep" ]] && package=""
     command -v "$dep" >/dev/null 2>&1 || missing_packages+=("${package:-$dep}")
   done
