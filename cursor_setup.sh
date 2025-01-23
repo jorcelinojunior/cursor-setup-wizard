@@ -12,7 +12,7 @@ readonly ICON_URL="https://mintlify.s3-us-west-1.amazonaws.com/cursor/images/log
 readonly VERSION_CHECK_TIMEOUT=5 # in seconds | if you have a slow connection, increase this value to 10, 15, or more
 readonly SPINNERS=("meter" "line" "dot" "minidot" "jump" "pulse" "points" "globe" "moon" "monkey" "hamburger")
 readonly SPINNER="${SPINNERS[0]}"
-readonly DEPENDENCIES=("gum" "curl" "wget" "pv" "bc" "find:findutils" "chmod:coreutils" "timeout:coreutils" "mkdir:coreutils" "apparmor_parser:apparmor-utils")
+readonly DEPENDENCIES=("gum" "curl" "wget" "pv" "bc" "find:findutils" "chmod:coreutils" "timeout:coreutils" "mkdir:coreutils" "apparmor_parser:apparmor-utils" "libfuse2")
 readonly GUM_VERSION_REQUIRED="0.14.5"
 readonly SYSTEM_DESKTOP_FILE="$HOME/.local/share/applications/cursor.desktop"
 readonly APPARMOR_PROFILE="/etc/apparmor.d/cursor-appimage"
@@ -80,6 +80,16 @@ install_script_alias() {
 check_and_install_dependencies() {
   spinner "Checking dependencies..." "sleep 1"
   local missing_packages=()
+  
+  # Special handling for libfuse2 on Ubuntu 24.04+
+  if [[ -f "/etc/os-release" ]] && grep -q "Ubuntu" "/etc/os-release"; then
+    local ubuntu_version=$(grep -oP 'VERSION_ID="\K[^"]+' /etc/os-release)
+    if (( $(echo "$ubuntu_version >= 24.04" | bc -l) )); then
+      # Replace libfuse2 with libfuse2t64 for Ubuntu 24.04+
+      DEPENDENCIES=("${DEPENDENCIES[@]/libfuse2/libfuse2t64}")
+    fi
+  fi
+
   for dep_info in "${DEPENDENCIES[@]}"; do
     local dep="${dep_info%%:*}" package="${dep_info#*:}"
     [[ "$package" == "$dep" ]] && package=""
