@@ -46,10 +46,10 @@ validate_os() {
   local os_name
   spinner "Checking system compatibility..." "sleep 1"
   os_name=$(grep -i '^NAME=' /etc/os-release | cut -d= -f2 | tr -d '"')
-  grep -iqE "ubuntu|kubuntu|xubuntu|lubuntu|pop!_os|elementary|zorin|linux mint" /etc/os-release || {
-    logg error "$(printf "\n   This script is designed exclusively for Ubuntu and its popular derivatives.\n   Detected: %s. \n   Exiting..." "$os_name")"; exit 1
+  grep -iqE "ubuntu|kubuntu|xubuntu|lubuntu|pop!_os|elementary|zorin|linux mint|debian gnu/linux" /etc/os-release || {
+    logg error "$(printf "\n   This script is designed exclusively for Debian and Ubuntu-based distributions.\n   Detected: %s. \n   Exiting..." "$os_name")"; exit 1
   }
-  logg success "$(echo -e "Detected $os_name (Ubuntu or derivative). System is compatible.")"
+  logg success "$(echo -e "Detected $os_name (Debian/Ubuntu-based). System is compatible.")"
 }
 
 install_script_alias() {
